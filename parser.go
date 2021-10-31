@@ -1,6 +1,9 @@
 package main
 
-import "strings"
+import (
+	"regexp"
+	"strings"
+)
 
 /*
 	There is no default structure in Golang called enums (enumerators).
@@ -18,6 +21,9 @@ const (
 	heading6
 )
 
+// HeadingRE regex source: https://github.com/Python-Markdown/markdown/blob/master/markdown/blockprocessors.py#L448
+const HeadingRE = `(?:^|\n)(?P<level>#{1,6})(?P<header>(?:\\.|[^\\])*?)#*(?:\n|$)`
+
 type token struct {
 	style   int
 	content string
@@ -31,23 +37,25 @@ type mdParser struct {
 // newParser returns a pointer to an object of mdParser.
 // It parses the passed string into markdown tokens.
 func newParser(input string) *mdParser {
-	input = strings.TrimSpace(input)
 	p := &mdParser{}
 
-	if strings.HasPrefix(input, "##") {
-		t := &token{}
-		t.content = strings.TrimLeftFunc(input, func(r rune) bool { return r == '#' || r == ' ' })
-		t.style = heading2
-		p.tokens = append(p.tokens, t)
-	} else if strings.HasPrefix(input, "#") {
-		t := &token{}
-		t.content = strings.TrimLeftFunc(input, func(r rune) bool { return r == '#' || r == ' ' })
-		t.style = heading1
-		p.tokens = append(p.tokens, t)
-	} else {
-		t := &token{}
-		t.content = input
-		p.tokens = append(p.tokens, t)
+	lines := strings.Split(input, "\n")
+	for _, line := range lines {
+		// headings
+		r := regexp.MustCompile(HeadingRE)
+		if r.MatchString(line) {
+			level := len(r.FindStringSubmatch(line)[1])
+			content := strings.TrimSpace(r.FindStringSubmatch(line)[2])
+			/*
+			* heading 1-6 has value 1-6 according to the enum declaration above.
+			* So, we can directly use the length of `#` to determine the heading level
+			 */
+			p.tokens = append(p.tokens, &token{level, content})
+			continue
+		}
+
+		// paragraph
+		p.tokens = append(p.tokens, &token{para, line})
 	}
 
 	return p

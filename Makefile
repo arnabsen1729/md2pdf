@@ -1,19 +1,20 @@
 BINARY_NAME=md2pdf
 
 build:
-	go build -o ${BINARY_NAME} main.go
+	go build -o ${BINARY_NAME} .
 
 run:
 	./${BINARY_NAME}
 
 dev:
-	go run main.go
+	go run .
 
 build_and_run: build run
 
 clean:
 	go clean
-	rm ${BINARY_NAME}
+	rm -f ${BINARY_NAME}
+	rm -f *.pdf
 
 test:
 	go test ./...
