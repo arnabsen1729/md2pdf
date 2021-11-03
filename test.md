@@ -1,18 +1,12 @@
 # Heading 1
-# Heading 1
-## Heading 2
-## Heading 2
-### Heading 3
-### Heading 3
-#### Heading 4
-#### Heading 4
-##### Heading 5
-##### Heading 5
-###### Heading 6
-###### Heading 6
 
-Lorem **ipsum** *dolor* sit amet, *consectetur* **adipiscing** elit,
-Viverra justo nec ultrices dui sapien eget mi proin. Aliquet sagittis id consectetur purus ut faucibus. Aliquet eget sit amet tellus cras adipiscing enim. Est placerat in egestas erat imperdiet. Orci sagittis eu volutpat odio facilisis mauris sit. Nunc id cursus metus aliquam eleifend mi. Turpis egestas sed tempus urna et pharetra pharetra massa. Faucibus turpis in eu mi. Consequat nisl vel pretium lectus quam. Sodales ut etiam sit amet. Ultrices dui sapien eget mi proin sed. Diam maecenas sed enim ut sem viverra.
+Lorem **ipsum** *dolor* sit amet, *consectetur* **adipiscing** elit, `code snippet`.
+
+## Heading 2
+
+Viverra `justo nec ultrices dui sapien eget mi proin.` Aliquet **sagittis** `id consectetur` *purus ut faucibus*. Aliquet eget sit amet tellus cras adipiscing enim. Est placerat in egestas erat imperdiet. Orci sagittis eu volutpat odio facilisis mauris sit. Nunc id cursus metus aliquam eleifend mi. Turpis egestas sed tempus urna et pharetra pharetra massa. Faucibus turpis in eu mi. Consequat nisl vel pretium lectus quam. Sodales ut etiam sit amet. Ultrices dui sapien eget mi proin sed. Diam maecenas sed enim ut sem viverra.
+
+### Heading 3
 
 Id leo in vitae turpis massa sed. Fames ac turpis egestas maecenas pharetra convallis posuere morbi leo. Sit amet facilisis magna etiam tempor orci eu lobortis elementum. Morbi tristique senectus et netus et malesuada. Tellus integer feugiat scelerisque varius morbi enim nunc. Placerat orci nulla pellentesque dignissim. Nibh sed pulvinar proin gravida hendrerit lectus. Condimentum lacinia quis vel eros donec ac. Commodo sed egestas egestas fringilla phasellus faucibus scelerisque eleifend donec. Ultricies lacus sed turpis tincidunt id aliquet.
 

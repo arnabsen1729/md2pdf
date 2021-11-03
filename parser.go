@@ -22,13 +22,17 @@ const (
 	heading6
 	bold
 	italic
+	code
 )
 
 // HeadingRE regex source: https://github.com/Python-Markdown/markdown/blob/master/markdown/blockprocessors.py#L448
 const (
 	HeadingRE = `(?:^|\n)(?P<level>#{1,6})(?P<header>(?:\\.|[^\\])*?)#*(?:\n|$)`
-	BoldRE    = `(\*{2}\S+?\*{2})`
-	ItalicRE  = `(\*{1}\S+?\*{1})`
+	BoldRE    = `(\*{2}.+?\*{2})`
+	ItalicRE  = `(\*{1}.+?\*{1})`
+	CodeRE    = `(\` + "`" + `{1}.+?\` + "`" + `{1})`
+	// Golang doesn't seem to support ` (backtick) in raw strings.
+	// Ref: https://github.com/golang/go/issues/18221#issuecomment-265314494
 )
 
 type token struct {
@@ -48,6 +52,8 @@ func newTokenDerived(content string, style int) *token {
 		return &token{bold, content[2 : len(content)-2]}
 	} else if strings.HasPrefix(content, "*") && strings.HasSuffix(content, "*") {
 		return &token{italic, content[1 : len(content)-1]}
+	} else if strings.HasPrefix(content, "`") && strings.HasSuffix(content, "`") {
+		return &token{code, content[1 : len(content)-1]}
 	} else {
 		return &token{style, content}
 	}
@@ -56,9 +62,11 @@ func newTokenDerived(content string, style int) *token {
 func inlineParseAndAppend(style int, content string) []*token {
 	var line []*token
 
-	InlineRE := fmt.Sprintf("%s|%s", BoldRE, ItalicRE)
+	// OR-ing the regexes together, to catch all the inline styles
+	InlineRE := fmt.Sprintf("%s|%s|%s", BoldRE, ItalicRE, CodeRE)
 	re := regexp.MustCompile(InlineRE)
 	groups := re.FindAllStringIndex(content, -1)
+
 	lastPos := 0
 
 	for _, group := range groups {

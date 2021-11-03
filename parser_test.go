@@ -66,24 +66,30 @@ func TestParserOnMultiLineText(t *testing.T) {
 
 func TestParserOnInline(t *testing.T) {
 	// bold text
-	p := newParser("**bold**")
+	p := newParser("**bold word**")
 	assert.Equal(t, 1, len(p.lines))
-	assert.Equal(t, []*token{{style: bold, content: "bold"}}, p.lines[0])
+	assert.Equal(t, []*token{{style: bold, content: "bold word"}}, p.lines[0])
 
 	// italic text
-	p = newParser("*italic*")
+	p = newParser("*italic word*")
 	assert.Equal(t, 1, len(p.lines))
-	assert.Equal(t, []*token{{style: italic, content: "italic"}}, p.lines[0])
+	assert.Equal(t, []*token{{style: italic, content: "italic word"}}, p.lines[0])
+
+	// code text
+	p = newParser("`code word`")
+	assert.Equal(t, 1, len(p.lines))
+	assert.Equal(t, []*token{{style: code, content: "code word"}}, p.lines[0])
 
 	// mixed
-	p = newParser("normal **bold** test with *italic* and * is used")
+	p = newParser("normal **bold word** test with *italic word* and * is used with `code word`")
 	assert.Equal(t, 1, len(p.lines))
 	expTokens := []*token{
 		{style: para, content: "normal"},
-		{style: bold, content: "bold"},
+		{style: bold, content: "bold word"},
 		{style: para, content: "test with"},
-		{style: italic, content: "italic"},
-		{style: para, content: "and * is used"},
+		{style: italic, content: "italic word"},
+		{style: para, content: "and * is used with"},
+		{style: code, content: "code word"},
 	}
 	assert.Equal(t, expTokens, p.lines[0])
 }
