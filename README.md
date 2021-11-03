@@ -8,8 +8,8 @@ Will take a markdown file as input and then create a PDF file with the markdown 
 
 A Parser will parse the input markdown file as tokens.
 
-- [ ] Headings (L1 - L6)
-- [ ] Paragraph
+- [X] Headings (L1 - L6)
+- [X] Paragraph
 - [ ] Blockquotes
 - [ ] Images
 - [ ] CodeBlock
@@ -20,8 +20,8 @@ A Parser will parse the input markdown file as tokens.
 
 Will also consider some inline styling like:
 
-- [ ] Bold
-- [ ] Italic
+- [X] Bold
+- [X] Italic
 - [ ] Code
 
 [Markdown Guidelines](https://www.markdownguide.org/basic-syntax/)
