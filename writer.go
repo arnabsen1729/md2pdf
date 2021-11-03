@@ -2,21 +2,39 @@ package main
 
 import (
 	"log"
+	"strings"
 
 	"github.com/jung-kurt/gofpdf"
 )
 
-// setStyleFn returns a func that will write the content with the style passed by the params
-func setStyleFn(style string, size float64, h float64) func(p *gofpdf.Fpdf, c string) {
-	return func(pdf *gofpdf.Fpdf, content string) {
+const pageWidth = 190
+
+// setStyleFn returns a func that will write the content with the style passed by the params.
+func setStyleFn(style string, size float64, h float64) func(p *gofpdf.Fpdf, c string, i bool) {
+	return func(pdf *gofpdf.Fpdf, content string, isStart bool) {
 		pdf.SetFont("Arial", style, size)
-		pdf.MultiCell(190, h, content, "0", "0", false)
+
+		words := strings.Split(content, " ")
+
+		for index, word := range words {
+			finalXPos := pdf.GetStringWidth(" "+word) + pdf.GetX()
+
+			if finalXPos > pageWidth {
+				pdf.Ln(h)
+			} else if !(isStart && index == 0) {
+				word = " " + word
+			}
+
+			pdf.Cell(pdf.GetStringWidth(word), h, word)
+		}
 	}
 }
 
-// map that contains the format of the tokens
-var formatWriter = map[int]func(p *gofpdf.Fpdf, c string){
+// map that contains the format of the tokens.
+var formatWriter = map[int]func(p *gofpdf.Fpdf, c string, i bool){
 	para:     setStyleFn("", 14, 6),
+	bold:     setStyleFn("B", 14, 6),
+	italic:   setStyleFn("I", 14, 6),
 	heading1: setStyleFn("B", 22, 9),
 	heading2: setStyleFn("B", 20, 9),
 	heading3: setStyleFn("B", 18, 8),
@@ -29,11 +47,16 @@ type pdfWriter struct {
 	pdf *gofpdf.Fpdf
 }
 
-func (p *pdfWriter) init(tokens []*token) {
+func (p *pdfWriter) init(lines [][]*token) {
 	p.pdf = gofpdf.New("P", "mm", "A4", "")
 	p.pdf.AddPage()
-	for _, t := range tokens {
-		formatWriter[t.style](p.pdf, t.content)
+
+	for _, line := range lines {
+		for index, t := range line {
+			formatWriter[t.style](p.pdf, t.content, index == 0)
+		}
+
+		p.pdf.Ln(8)
 	}
 }
 
