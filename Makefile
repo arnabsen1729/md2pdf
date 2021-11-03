@@ -7,7 +7,9 @@ run:
 	./${BINARY_NAME}
 
 dev:
-	go run .
+	go build -o ${BINARY_NAME} .
+	./${BINARY_NAME} -file test.md
+	xdg-open test.pdf
 
 build_and_run: build run
 
