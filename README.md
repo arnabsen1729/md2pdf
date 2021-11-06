@@ -1,8 +1,24 @@
 # Markdown to PDF
 
-## Description
+![hero](/.github/assets/hero.png)
 
 Will take a markdown file as input and then create a PDF file with the markdown formatting.
+
+## Usage
+
+```
+Usage of md2pdf:
+  -file string
+    	Name of the markdown file to read
+  -output string
+    	Name of the PDF file to be exported  (default: <input-file-name>.pdf)
+```
+
+Example:
+
+```
+$ md2pdf -file=MyFile.md -output=MyFile.pdf
+```
 
 ## Parser
 

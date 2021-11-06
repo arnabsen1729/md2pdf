@@ -26,7 +26,7 @@ func main() {
 	flag.Parse()
 
 	if *fileName == "" {
-		log.Fatal("Please provide a file to read")
+		flag.Usage()
 		os.Exit(1)
 	}
 
