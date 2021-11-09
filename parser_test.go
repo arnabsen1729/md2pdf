@@ -14,6 +14,8 @@ import (
 )
 
 func TestParserOnSingleLineText(t *testing.T) {
+	t.Parallel()
+
 	// testing simple string as paragraph.
 	p := newParser("hello")
 	assert.NotEmpty(t, p.lines)
@@ -36,6 +38,8 @@ func TestParserOnSingleLineText(t *testing.T) {
 }
 
 func TestParserOnMultiLineText(t *testing.T) {
+	t.Parallel()
+
 	// testing simple string as paragraph.
 	p := newParser("hello\nthis is another line")
 	assert.Equal(t, 2, len(p.lines))
@@ -65,6 +69,8 @@ func TestParserOnMultiLineText(t *testing.T) {
 }
 
 func TestParserOnInline(t *testing.T) {
+	t.Parallel()
+
 	// bold text
 	p := newParser("**bold word**")
 	assert.Equal(t, 1, len(p.lines))
