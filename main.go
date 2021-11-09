@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// readFile to read the contents of the file and return string
+// readFile to read the contents of the file and return string.
 func readFile(fileName string) string {
 	content, err := ioutil.ReadFile(fileName)
 	if err != nil {
@@ -36,7 +36,7 @@ func main() {
 
 	md := readFile(*fileName)
 	p := newParser(md)
-	pdf := &pdfWriter{}
+	pdf := &pdfWriter{pdf: nil}
 	pdf.init(p.lines)
 	pdf.export(*outputFileName)
 }

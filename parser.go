@@ -48,19 +48,20 @@ type mdParser struct {
 func newTokenDerived(content string, style int) *token {
 	content = strings.TrimSpace(content)
 
-	if strings.HasPrefix(content, "**") && strings.HasSuffix(content, "**") {
+	switch {
+	case strings.HasPrefix(content, "**") && strings.HasSuffix(content, "**"):
 		return &token{bold, content[2 : len(content)-2]}
-	} else if strings.HasPrefix(content, "*") && strings.HasSuffix(content, "*") {
+	case strings.HasPrefix(content, "*") && strings.HasSuffix(content, "*"):
 		return &token{italic, content[1 : len(content)-1]}
-	} else if strings.HasPrefix(content, "`") && strings.HasSuffix(content, "`") {
+	case strings.HasPrefix(content, "`") && strings.HasSuffix(content, "`"):
 		return &token{code, content[1 : len(content)-1]}
-	} else {
+	default:
 		return &token{style, content}
 	}
 }
 
 func inlineParseAndAppend(style int, content string) []*token {
-	var line []*token
+	line := make([]*token, 0)
 
 	// OR-ing the regexes together, to catch all the inline styles
 	InlineRE := fmt.Sprintf("%s|%s|%s", BoldRE, ItalicRE, CodeRE)
@@ -88,7 +89,7 @@ func inlineParseAndAppend(style int, content string) []*token {
 // newParser returns a pointer to an object of mdParser.
 // It parses the passed string into markdown tokens.
 func newParser(input string) *mdParser {
-	p := &mdParser{}
+	p := &mdParser{lines: nil}
 
 	lines := strings.Split(input, "\n")
 	for _, line := range lines {

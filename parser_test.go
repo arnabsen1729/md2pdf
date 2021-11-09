@@ -1,4 +1,4 @@
-package main
+package main // nolint
 
 /*
 	Naming the package for test can be either foo_test or just foo depending
@@ -83,6 +83,7 @@ func TestParserOnInline(t *testing.T) {
 	// mixed
 	p = newParser("normal **bold word** test with *italic word* and * is used with `code word`")
 	assert.Equal(t, 1, len(p.lines))
+
 	expTokens := []*token{
 		{style: para, content: "normal"},
 		{style: bold, content: "bold word"},
