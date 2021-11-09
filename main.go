@@ -35,8 +35,8 @@ func main() {
 	}
 
 	md := readFile(*fileName)
-	p := newParser(md)
+	par := newParser(md)
 	pdf := &pdfWriter{pdf: nil}
-	pdf.init(p.lines)
+	pdf.init(par.lines)
 	pdf.export(*outputFileName)
 }
