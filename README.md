@@ -37,7 +37,7 @@ Will also consider some inline blocks like:
 
 - [X] Bold
 - [X] Italic
-- [ ] Code
+- [X] Code
 - [ ] Link
 - [ ] Images
 
