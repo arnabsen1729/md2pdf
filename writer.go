@@ -7,6 +7,14 @@ import (
 	"github.com/jung-kurt/gofpdf"
 )
 
+type color struct {
+	r, g, b int
+}
+
+func (c color) isWhite() bool {
+	return c.r == 255 && c.g == 255 && c.b == 255
+}
+
 const (
 	pageWidth         = 190
 	offsetSpace       = 2
@@ -24,68 +32,74 @@ const (
 	headingGrp3Height = 7
 )
 
-type color struct {
-	r, g, b int
-}
-
-func (c color) isWhite() bool {
-	return c.r == 255 && c.g == 255 && c.b == 255
-}
-
 // setStyleFn returns a func that will write the content with the style passed by the params.
-func setStyleFn(style string, size float64, h float64, c color, font string) func(p *gofpdf.Fpdf, c string) {
-	return func(pdf *gofpdf.Fpdf, content string) {
-		pdf.SetFont(font, style, size)
-		pdf.SetFillColor(c.r, c.g, c.b)
+func setStyleFn(style string, size float64, h float64, bg color, font string, fg color, pdf *gofpdf.Fpdf, t *token) {
+	pdf.SetFont(font, style, size)
+	pdf.SetTextColor(fg.r, fg.g, fg.b)
+	pdf.SetFillColor(bg.r, bg.g, bg.b)
 
-		words := strings.Split(content, " ")
+	words := strings.Split(t.content, " ")
 
-		for _, word := range words {
-			if len(word) == 0 {
-				continue
-			}
+	for _, word := range words {
+		if len(word) == 0 {
+			continue
+		}
 
-			finalXPos := pdf.GetStringWidth(" "+word) + pdf.GetX()
+		finalXPos := pdf.GetStringWidth(" "+word) + pdf.GetX()
+		w := pdf.GetStringWidth(word) + offsetSpace
 
-			if finalXPos > pageWidth {
-				pdf.Ln(h)
-			}
+		if finalXPos > pageWidth {
+			pdf.Ln(h)
+		}
 
-			switch style {
-			case "B":
-				pdf.CellFormat(pdf.GetStringWidth(word)+offsetSpace, h, word, "", 0, "", false, 0, "")
-			case "I":
-				pdf.CellFormat(pdf.GetStringWidth(word)+offsetSpace, h, word, "", 0, "", false, 0, "")
-			default:
-				pdf.CellFormat(pdf.GetStringWidth(word)+offsetSpace, h, word, "", 0, "", !c.isWhite(), 0, "")
-			}
+		if t.style == link {
+			// Currently separate links are added to each word. Ideally the entire phrase should be link.
+			pdf.LinkString(pdf.GetX(), pdf.GetY(), w, h, t.altContent)
+		}
+
+		switch style {
+		case "B":
+			pdf.CellFormat(w, h, word, "", 0, "", false, 0, "")
+		case "I":
+			pdf.CellFormat(w, h, word, "", 0, "", false, 0, "")
+		default:
+			pdf.CellFormat(w, h, word, "", 0, "", !bg.isWhite(), 0, "")
 		}
 	}
 }
 
 // func that returns the format of the tokens.
-func formatWriter(style int) func(p *gofpdf.Fpdf, c string) { // nolint
-	switch style {
+func formatWriter(p *gofpdf.Fpdf, t *token) { // nolint
+	var (
+		// standard colors
+		black = color{0, 0, 0}
+		blue  = color{0, 0, 255}
+		white = color{255, 255, 255}
+	)
+
+	switch t.style {
 	case bold:
-		return setStyleFn("B", normalTextSize, normalTextHeight, color{255, 255, 255}, "Arial")
+		setStyleFn("B", normalTextSize, normalTextHeight, white, "Arial", black, p, t)
 	case italic:
-		return setStyleFn("I", normalTextSize, normalTextHeight, color{255, 255, 255}, "Arial")
+		setStyleFn("I", normalTextSize, normalTextHeight, white, "Arial", black, p, t)
 	case code:
-		return setStyleFn("", normalTextSize, normalTextHeight, color{220, 220, 220}, "Courier")
+		setStyleFn("", normalTextSize, normalTextHeight, color{220, 220, 220}, "Courier", black, p, t)
 	case heading1:
-		return setStyleFn("B", heading1Size, headingGrp1Height, color{255, 255, 255}, "Arial")
+		setStyleFn("B", heading1Size, headingGrp1Height, white, "Arial", black, p, t)
 	case heading2:
-		return setStyleFn("B", heading2Size, headingGrp1Height, color{255, 255, 255}, "Arial")
+		setStyleFn("B", heading2Size, headingGrp1Height, white, "Arial", black, p, t)
 	case heading3:
-		return setStyleFn("B", heading3Size, headingGrp2Height, color{255, 255, 255}, "Arial")
+		setStyleFn("B", heading3Size, headingGrp2Height, white, "Arial", black, p, t)
 	case heading4:
-		return setStyleFn("B", heading4Size, headingGrp2Height, color{255, 255, 255}, "Arial")
+		setStyleFn("B", heading4Size, headingGrp2Height, white, "Arial", black, p, t)
 	case heading5:
-		return setStyleFn("B", heading5Size, headingGrp3Height, color{255, 255, 255}, "Arial")
+		setStyleFn("B", heading5Size, headingGrp3Height, white, "Arial", black, p, t)
 	case heading6:
-		return setStyleFn("B", heading6Size, headingGrp3Height, color{255, 255, 255}, "Arial")
+		setStyleFn("B", heading6Size, headingGrp3Height, white, "Arial", black, p, t)
+	case link:
+		setStyleFn("", normalTextSize, normalTextHeight, white, "Arial", blue, p, t)
 	default:
-		return setStyleFn("", normalTextSize, normalTextHeight, color{255, 255, 255}, "Arial")
+		setStyleFn("", normalTextSize, normalTextHeight, white, "Arial", black, p, t)
 	}
 }
 
@@ -99,7 +113,7 @@ func (p *pdfWriter) init(lines [][]*token) {
 
 	for _, line := range lines {
 		for _, t := range line {
-			formatWriter(t.style)(p.pdf, t.content)
+			formatWriter(p.pdf, t)
 		}
 
 		p.pdf.Ln(lineHeight)

@@ -22,4 +22,4 @@ test:
 	go test ./...
 
 lint:
-	golangci-lint run --enable-all --color always --issues-exit-code=0 --disable varnamelen
+	golangci-lint run --enable-all --color always --issues-exit-code=0
