@@ -29,7 +29,6 @@ A Parser will parse the input markdown file as tokens.
 - [ ] Blockquotes
 - [ ] CodeBlock
 - [ ] Lists (Ordered and Unordered)
-- [ ] Links
 - [ ] Horizontal Rules
 - [ ] Tables
 
@@ -38,7 +37,7 @@ Will also consider some inline blocks like:
 - [X] Bold
 - [X] Italic
 - [X] Code
-- [ ] Link
+- [X] Link
 - [ ] Images
 
 [Markdown Guidelines](https://www.markdownguide.org/basic-syntax/)
