@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 )
@@ -35,6 +34,8 @@ const (
 	// Ref: https://github.com/golang/go/issues/18221#issuecomment-265314494
 )
 
+var re = regexp.MustCompile(BoldRE + "|" + ItalicRE + "|" + CodeRE)
+
 type token struct {
 	style   int
 	content string
@@ -64,8 +65,6 @@ func inlineParseAndAppend(style int, content string) []*token {
 	line := make([]*token, 0)
 
 	// OR-ing the regexes together, to catch all the inline styles
-	InlineRE := fmt.Sprintf("%s|%s|%s", BoldRE, ItalicRE, CodeRE)
-	re := regexp.MustCompile(InlineRE)
 	groups := re.FindAllStringIndex(content, -1)
 
 	lastPos := 0
