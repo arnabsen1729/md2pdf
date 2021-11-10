@@ -23,6 +23,7 @@ const (
 	italic
 	code
 	link
+	image
 )
 
 // Regex source: https://github.com/Python-Markdown/markdown/blob/master/markdown/blockprocessors.py#L448
@@ -33,10 +34,14 @@ const (
 	CodeRE    = `(\` + "`" + `{1}.+?\` + "`" + `{1})`
 	// Golang doesn't seem to support ` (backtick) in raw strings.
 	// Ref: https://github.com/golang/go/issues/18221#issuecomment-265314494
-	LinkRE = `\[.+?\]\(.+?\)`
+	LinkRE  = `\[.+?\]\(.+?\)`
+	ImageRE = `\!\[.+?\]\(.+?\)`
 )
 
-var re = regexp.MustCompile(BoldRE + "|" + ItalicRE + "|" + CodeRE + "|" + LinkRE)
+// * For testing Regex use regex101.com .
+
+// OR-ing the regexes together, to catch all the inline styles.
+var re = regexp.MustCompile(BoldRE + "|" + ItalicRE + "|" + CodeRE + "|" + LinkRE + "|" + ImageRE)
 
 /*
 	For links, altContent will store the URL and content will store the text to display.
@@ -70,6 +75,12 @@ func newTokenDerived(content string, style int) *token {
 		linkURL := content[closingBracketPos+2 : len(content)-1]
 
 		return &token{style: link, content: linkContent, altContent: linkURL}
+	case strings.HasPrefix(content, "![") && strings.HasSuffix(content, ")"): // image
+		closingBracketPos := strings.Index(content, "]")
+		imageContent := content[2:closingBracketPos]
+		imageURL := content[closingBracketPos+2 : len(content)-1]
+
+		return &token{style: image, content: imageContent, altContent: imageURL}
 	default:
 		return &token{style: style, content: content, altContent: ""}
 	}
@@ -78,7 +89,6 @@ func newTokenDerived(content string, style int) *token {
 func inlineParseAndAppend(style int, content string) []*token {
 	line := make([]*token, 0)
 
-	// OR-ing the regexes together, to catch all the inline styles
 	groups := re.FindAllStringIndex(content, -1)
 
 	lastPos := 0

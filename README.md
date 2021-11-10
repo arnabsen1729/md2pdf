@@ -42,6 +42,6 @@ Will also consider some inline blocks like:
 - [X] Italic
 - [X] Code
 - [X] Link
-- [ ] Images
+- [X] Images
 
 [Markdown Guidelines](https://www.markdownguide.org/basic-syntax/)

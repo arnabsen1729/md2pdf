@@ -2,9 +2,11 @@ package main
 
 import (
 	"log"
+	"math"
 	"strings"
 
 	"github.com/jung-kurt/gofpdf"
+	"github.com/jung-kurt/gofpdf/contrib/httpimg"
 )
 
 type color struct {
@@ -32,8 +34,22 @@ const (
 	headingGrp3Height = 7
 )
 
-// setStyleFn returns a func that will write the content with the style passed by the params.
-func setStyleFn(style string, size float64, h float64, bg color, font string, fg color, pdf *gofpdf.Fpdf, t *token) {
+func displayImage(imageURL string, pdf *gofpdf.Fpdf) {
+	// refer to https://stackoverflow.com/questions/51190445/how-to-use-image-url-in-gofpdf.
+	pdf.Ln(lineHeight)
+	httpimg.Register(pdf, imageURL, "")
+	info := pdf.RegisterImage(imageURL, "")
+	pdf.Image(imageURL, pdf.GetX(), pdf.GetY(), math.Min(pageWidth, info.Width()), 0, true, "", 0, "")
+}
+
+// writeWithStyle will write the content with the style passed by the params.
+func writeWithStyle(style string, size float64, h float64, bg color, font string, fg color, pdf *gofpdf.Fpdf, t *token) {
+	if t.style == image {
+		displayImage(t.altContent, pdf)
+
+		return
+	}
+
 	pdf.SetFont(font, style, size)
 	pdf.SetTextColor(fg.r, fg.g, fg.b)
 	pdf.SetFillColor(bg.r, bg.g, bg.b)
@@ -79,27 +95,27 @@ func formatWriter(p *gofpdf.Fpdf, t *token) { // nolint
 
 	switch t.style {
 	case bold:
-		setStyleFn("B", normalTextSize, normalTextHeight, white, "Arial", black, p, t)
+		writeWithStyle("B", normalTextSize, normalTextHeight, white, "Arial", black, p, t)
 	case italic:
-		setStyleFn("I", normalTextSize, normalTextHeight, white, "Arial", black, p, t)
+		writeWithStyle("I", normalTextSize, normalTextHeight, white, "Arial", black, p, t)
 	case code:
-		setStyleFn("", normalTextSize, normalTextHeight, color{220, 220, 220}, "Courier", black, p, t)
+		writeWithStyle("", normalTextSize, normalTextHeight, color{220, 220, 220}, "Courier", black, p, t)
 	case heading1:
-		setStyleFn("B", heading1Size, headingGrp1Height, white, "Arial", black, p, t)
+		writeWithStyle("B", heading1Size, headingGrp1Height, white, "Arial", black, p, t)
 	case heading2:
-		setStyleFn("B", heading2Size, headingGrp1Height, white, "Arial", black, p, t)
+		writeWithStyle("B", heading2Size, headingGrp1Height, white, "Arial", black, p, t)
 	case heading3:
-		setStyleFn("B", heading3Size, headingGrp2Height, white, "Arial", black, p, t)
+		writeWithStyle("B", heading3Size, headingGrp2Height, white, "Arial", black, p, t)
 	case heading4:
-		setStyleFn("B", heading4Size, headingGrp2Height, white, "Arial", black, p, t)
+		writeWithStyle("B", heading4Size, headingGrp2Height, white, "Arial", black, p, t)
 	case heading5:
-		setStyleFn("B", heading5Size, headingGrp3Height, white, "Arial", black, p, t)
+		writeWithStyle("B", heading5Size, headingGrp3Height, white, "Arial", black, p, t)
 	case heading6:
-		setStyleFn("B", heading6Size, headingGrp3Height, white, "Arial", black, p, t)
+		writeWithStyle("B", heading6Size, headingGrp3Height, white, "Arial", black, p, t)
 	case link:
-		setStyleFn("", normalTextSize, normalTextHeight, white, "Arial", blue, p, t)
+		writeWithStyle("", normalTextSize, normalTextHeight, white, "Arial", blue, p, t)
 	default:
-		setStyleFn("", normalTextSize, normalTextHeight, white, "Arial", black, p, t)
+		writeWithStyle("", normalTextSize, normalTextHeight, white, "Arial", black, p, t)
 	}
 }
 
