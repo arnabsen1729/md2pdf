@@ -22,7 +22,7 @@ $ md2pdf -file=MyFile.md -output=MyFile.pdf
 
 ## Demo
 
-![demo](./.github/assets/md2pdfv1.gif)
+![demo](./.github/assets/demo.gif)
 
 ## Parser
 

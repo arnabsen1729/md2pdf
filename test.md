@@ -3,7 +3,7 @@
 ![img](https://raw.githubusercontent.com/arnabsen1729/md2pdf/main/.github/assets/hero.png)
 
 Will convert your markdown files to beautiful pdf files.
-**Made** *with* `Golang` by [Arnab Sen](http://arnabsen.bio.link/).
+**Made** *with* `Golang` by [Arnab Sen](https://arnabsen.rocks/).
 
 ## Heading 2
 
