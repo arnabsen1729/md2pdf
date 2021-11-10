@@ -1,6 +1,9 @@
-# Heading 1
+# Markdown To PDF
 
-**Lorem ipsum** dolor *sit amet,* consectetur **adipiscing elit**, code snippet. [Link to website](http://arnabsen.bio.link/)
+![img](https://raw.githubusercontent.com/arnabsen1729/md2pdf/main/.github/assets/hero.png)
+
+Will convert your markdown files to beautiful pdf files.
+**Made** *with* `Golang` by [Arnab Sen](https://arnabsen.rocks/).
 
 ## Heading 2
 

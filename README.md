@@ -22,7 +22,7 @@ $ md2pdf -file=MyFile.md -output=MyFile.pdf
 
 ## Demo
 
-![demo](./.github/assets/md2pdfv1.gif)
+![demo](./.github/assets/demo.gif)
 
 ## Parser
 
@@ -42,6 +42,6 @@ Will also consider some inline blocks like:
 - [X] Italic
 - [X] Code
 - [X] Link
-- [ ] Images
+- [X] Images
 
 [Markdown Guidelines](https://www.markdownguide.org/basic-syntax/)
