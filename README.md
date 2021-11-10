@@ -20,6 +20,10 @@ Example:
 $ md2pdf -file=MyFile.md -output=MyFile.pdf
 ```
 
+## Demo
+
+![demo](./.github/assets/md2pdfv1.gif)
+
 ## Parser
 
 A Parser will parse the input markdown file as tokens.
