@@ -122,3 +122,11 @@ func TestParserOnLink(t *testing.T) {
 		{style: link, altContent: "https://www.google.com", content: "link"},
 	}, p.lines[1])
 }
+
+func TestParserOnImage(t *testing.T) {
+	t.Parallel()
+
+	p := newParser("![link](https://cdn.recast.ai/newsletter/city-01.png)")
+	assert.Equal(t, 1, len(p.lines))
+	assert.Equal(t, []*token{{style: image, altContent: "https://cdn.recast.ai/newsletter/city-01.png", content: "link"}}, p.lines[0])
+}
