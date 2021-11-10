@@ -22,9 +22,10 @@ const (
 	bold
 	italic
 	code
+	link
 )
 
-// HeadingRE regex source: https://github.com/Python-Markdown/markdown/blob/master/markdown/blockprocessors.py#L448
+// Regex source: https://github.com/Python-Markdown/markdown/blob/master/markdown/blockprocessors.py#L448
 const (
 	HeadingRE = `(?:^|\n)(?P<level>#{1,6})(?P<header>(?:\\.|[^\\])*?)#*(?:\n|$)`
 	BoldRE    = `(\*{2}.+?\*{2})`
@@ -32,13 +33,20 @@ const (
 	CodeRE    = `(\` + "`" + `{1}.+?\` + "`" + `{1})`
 	// Golang doesn't seem to support ` (backtick) in raw strings.
 	// Ref: https://github.com/golang/go/issues/18221#issuecomment-265314494
+	LinkRE = `\[.+?\]\(.+?\)`
 )
 
-var re = regexp.MustCompile(BoldRE + "|" + ItalicRE + "|" + CodeRE)
+var re = regexp.MustCompile(BoldRE + "|" + ItalicRE + "|" + CodeRE + "|" + LinkRE)
+
+/*
+	For links, altContent will store the URL and content will store the text to display.
+	Similarly, for images content will store the URL of the image.
+*/
 
 type token struct {
-	style   int
-	content string
+	style      int
+	content    string
+	altContent string // only in links and images, for rest it will ""(empty string).
 }
 
 // mdParser will parse the text passed into markdown tokens.
@@ -50,14 +58,20 @@ func newTokenDerived(content string, style int) *token {
 	content = strings.TrimSpace(content)
 
 	switch {
-	case strings.HasPrefix(content, "**") && strings.HasSuffix(content, "**"):
-		return &token{bold, content[2 : len(content)-2]}
-	case strings.HasPrefix(content, "*") && strings.HasSuffix(content, "*"):
-		return &token{italic, content[1 : len(content)-1]}
-	case strings.HasPrefix(content, "`") && strings.HasSuffix(content, "`"):
-		return &token{code, content[1 : len(content)-1]}
+	case strings.HasPrefix(content, "**") && strings.HasSuffix(content, "**"): // bold
+		return &token{style: bold, content: content[2 : len(content)-2], altContent: ""}
+	case strings.HasPrefix(content, "*") && strings.HasSuffix(content, "*"): // italic
+		return &token{style: italic, content: content[1 : len(content)-1], altContent: ""}
+	case strings.HasPrefix(content, "`") && strings.HasSuffix(content, "`"): // code (inline)
+		return &token{style: code, content: content[1 : len(content)-1], altContent: ""}
+	case strings.HasPrefix(content, "[") && strings.HasSuffix(content, ")"): // link
+		closingBracketPos := strings.Index(content, "]")
+		linkContent := content[1:closingBracketPos]
+		linkURL := content[closingBracketPos+2 : len(content)-1]
+
+		return &token{style: link, content: linkContent, altContent: linkURL}
 	default:
-		return &token{style, content}
+		return &token{style: style, content: content, altContent: ""}
 	}
 }
 
@@ -104,7 +118,7 @@ func newParser(input string) *mdParser {
 			* heading 1-6 has value 1-6 according to the enum declaration above.
 			* So, we can directly use the length of `#` to determine the heading level
 			 */
-			currTokens = append(currTokens, &token{level, content})
+			currTokens = append(currTokens, &token{style: level, content: content, altContent: ""})
 			p.lines = append(p.lines, currTokens)
 
 			continue
