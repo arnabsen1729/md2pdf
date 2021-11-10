@@ -85,7 +85,7 @@ func writeWithStyle(style string, size float64, h float64, bg color, font string
 }
 
 // func that returns the format of the tokens.
-func formatWriter(p *gofpdf.Fpdf, t *token) { // nolint
+func formatWriter(p *gofpdf.Fpdf, t *token) {
 	var (
 		// standard colors
 		black = color{0, 0, 0}
