@@ -13,6 +13,11 @@ type color struct {
 	r, g, b int
 }
 
+// rgb function is used so that the editor can detect color like rgb(0, 0, 255).
+func rgb(r int, g int, b int) *color {
+	return &color{r, g, b}
+}
+
 func (c color) isWhite() bool {
 	return c.r == 255 && c.g == 255 && c.b == 255
 }
@@ -43,11 +48,15 @@ func displayImage(imageURL string, pdf *gofpdf.Fpdf) {
 }
 
 // writeWithStyle will write the content with the style passed by the params.
-func writeWithStyle(style string, size float64, h float64, bg color, font string, fg color, pdf *gofpdf.Fpdf, t *token) {
+func writeWithStyle(style string, size float64, h float64, bg *color, font string, fg *color, pdf *gofpdf.Fpdf, t *token) {
 	if t.style == image {
 		displayImage(t.altContent, pdf)
 
 		return
+	} else if t.style == blockquote {
+		// prints the small rect in the beginning of blockquote.
+		pdf.SetFillColor(200, 200, 200)
+		pdf.CellFormat(2, h, " ", "", 0, "", true, 0, "")
 	}
 
 	pdf.SetFont(font, style, size)
@@ -66,6 +75,12 @@ func writeWithStyle(style string, size float64, h float64, bg color, font string
 
 		if finalXPos > pageWidth {
 			pdf.Ln(h)
+
+			if t.style == blockquote {
+				pdf.SetFillColor(200, 200, 200)
+				pdf.CellFormat(2, h, " ", "", 0, "", true, 0, "")
+				pdf.SetFillColor(bg.r, bg.g, bg.b)
+			}
 		}
 
 		if t.style == link {
@@ -88,34 +103,38 @@ func writeWithStyle(style string, size float64, h float64, bg color, font string
 func formatWriter(p *gofpdf.Fpdf, t *token) {
 	var (
 		// standard colors
-		black = color{0, 0, 0}
-		blue  = color{0, 0, 255}
-		white = color{255, 255, 255}
+		black     = rgb(0, 0, 0)
+		blue      = rgb(0, 0, 255)
+		white     = rgb(255, 255, 255)
+		grey      = rgb(220, 220, 220)
+		lightGrey = rgb(240, 240, 240)
 	)
 
 	switch t.style {
 	case bold:
-		writeWithStyle("B", normalTextSize, normalTextHeight, white, "Arial", black, p, t)
+		writeWithStyle("B", normalTextSize, normalTextHeight, white, "Helvetica", black, p, t)
 	case italic:
-		writeWithStyle("I", normalTextSize, normalTextHeight, white, "Arial", black, p, t)
+		writeWithStyle("I", normalTextSize, normalTextHeight, white, "Helvetica", black, p, t)
 	case code:
-		writeWithStyle("", normalTextSize, normalTextHeight, color{220, 220, 220}, "Courier", black, p, t)
+		writeWithStyle("", normalTextSize, normalTextHeight, grey, "Courier", black, p, t)
 	case heading1:
-		writeWithStyle("B", heading1Size, headingGrp1Height, white, "Arial", black, p, t)
+		writeWithStyle("B", heading1Size, headingGrp1Height, white, "Helvetica", black, p, t)
 	case heading2:
-		writeWithStyle("B", heading2Size, headingGrp1Height, white, "Arial", black, p, t)
+		writeWithStyle("B", heading2Size, headingGrp1Height, white, "Helvetica", black, p, t)
 	case heading3:
-		writeWithStyle("B", heading3Size, headingGrp2Height, white, "Arial", black, p, t)
+		writeWithStyle("B", heading3Size, headingGrp2Height, white, "Helvetica", black, p, t)
 	case heading4:
-		writeWithStyle("B", heading4Size, headingGrp2Height, white, "Arial", black, p, t)
+		writeWithStyle("B", heading4Size, headingGrp2Height, white, "Helvetica", black, p, t)
 	case heading5:
-		writeWithStyle("B", heading5Size, headingGrp3Height, white, "Arial", black, p, t)
+		writeWithStyle("B", heading5Size, headingGrp3Height, white, "Helvetica", black, p, t)
 	case heading6:
-		writeWithStyle("B", heading6Size, headingGrp3Height, white, "Arial", black, p, t)
+		writeWithStyle("B", heading6Size, headingGrp3Height, white, "Helvetica", black, p, t)
 	case link:
-		writeWithStyle("", normalTextSize, normalTextHeight, white, "Arial", blue, p, t)
+		writeWithStyle("", normalTextSize, normalTextHeight, white, "Helvetica", blue, p, t)
+	case blockquote:
+		writeWithStyle("", normalTextSize, normalTextHeight, lightGrey, "Helvetica", black, p, t)
 	default:
-		writeWithStyle("", normalTextSize, normalTextHeight, white, "Arial", black, p, t)
+		writeWithStyle("", normalTextSize, normalTextHeight, white, "Helvetica", black, p, t)
 	}
 }
 

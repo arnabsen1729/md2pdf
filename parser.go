@@ -24,6 +24,7 @@ const (
 	code
 	link
 	image
+	blockquote
 )
 
 // Regex source: https://github.com/Python-Markdown/markdown/blob/master/markdown/blockprocessors.py#L448
@@ -34,14 +35,19 @@ const (
 	CodeRE    = `(\` + "`" + `{1}.+?\` + "`" + `{1})`
 	// Golang doesn't seem to support ` (backtick) in raw strings.
 	// Ref: https://github.com/golang/go/issues/18221#issuecomment-265314494
-	LinkRE  = `\[.+?\]\(.+?\)`
-	ImageRE = `\!\[.+?\]\(.+?\)`
+	LinkRE       = `\[.+?\]\(.+?\)`
+	ImageRE      = `\!\[.+?\]\(.+?\)`
+	BlockquoteRE = `(^|\n)[ ]{0,3}>[ ]?(.*)`
 )
 
 // * For testing Regex use regex101.com .
 
 // OR-ing the regexes together, to catch all the inline styles.
-var re = regexp.MustCompile(BoldRE + "|" + ItalicRE + "|" + CodeRE + "|" + LinkRE + "|" + ImageRE)
+var (
+	re                   = regexp.MustCompile(BoldRE + "|" + ItalicRE + "|" + CodeRE + "|" + LinkRE + "|" + ImageRE)
+	headingCompiledRE    = regexp.MustCompile(HeadingRE)
+	blockquoteCompiledRE = regexp.MustCompile(BlockquoteRE)
+)
 
 /*
 	For links, altContent will store the URL and content will store the text to display.
@@ -119,22 +125,23 @@ func newParser(input string) *mdParser {
 		// headings
 		var currTokens []*token
 
-		r := regexp.MustCompile(HeadingRE)
-
-		if r.MatchString(line) {
-			level := len(r.FindStringSubmatch(line)[1])
-			content := strings.TrimSpace(r.FindStringSubmatch(line)[2])
+		switch {
+		case headingCompiledRE.MatchString(line): // heading
+			level := len(headingCompiledRE.FindStringSubmatch(line)[1])
+			content := strings.TrimSpace(headingCompiledRE.FindStringSubmatch(line)[2])
 			/*
 			* heading 1-6 has value 1-6 according to the enum declaration above.
 			* So, we can directly use the length of `#` to determine the heading level
 			 */
 			currTokens = append(currTokens, &token{style: level, content: content, altContent: ""})
-			p.lines = append(p.lines, currTokens)
+		case blockquoteCompiledRE.MatchString(line): // blockquote
+			content := strings.TrimSpace(blockquoteCompiledRE.FindStringSubmatch(line)[2])
 
-			continue
+			currTokens = append(currTokens, &token{style: blockquote, content: content, altContent: ""})
+		default: // paragraph
+			currTokens = append(currTokens, inlineParseAndAppend(para, line)...)
 		}
-		// paragraph
-		currTokens = append(currTokens, inlineParseAndAppend(para, line)...)
+
 		p.lines = append(p.lines, currTokens)
 	}
 

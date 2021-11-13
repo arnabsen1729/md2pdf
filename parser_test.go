@@ -130,3 +130,18 @@ func TestParserOnImage(t *testing.T) {
 	assert.Equal(t, 1, len(p.lines))
 	assert.Equal(t, []*token{{style: image, altContent: "https://cdn.recast.ai/newsletter/city-01.png", content: "link"}}, p.lines[0])
 }
+
+func TestParseOnBlockQuotes(t *testing.T) {
+	t.Parallel()
+
+	p := newParser("> hello\n> this is another line")
+	assert.Equal(t, 2, len(p.lines))
+	assert.Equal(t, []*token{{style: blockquote, content: "hello", altContent: ""}}, p.lines[0])
+	assert.Equal(t, []*token{{style: blockquote, content: "this is another line", altContent: ""}}, p.lines[1])
+
+	p = newParser("# heading\n> this is bq\nthis is a line")
+	assert.Equal(t, 3, len(p.lines))
+	assert.Equal(t, []*token{{style: heading1, content: "heading", altContent: ""}}, p.lines[0])
+	assert.Equal(t, []*token{{style: blockquote, content: "this is bq", altContent: ""}}, p.lines[1])
+	assert.Equal(t, []*token{{style: para, content: "this is a line", altContent: ""}}, p.lines[2])
+}
