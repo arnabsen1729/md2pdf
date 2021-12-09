@@ -38,19 +38,21 @@
 Many people love using markdown to take notes and write documentation. But when it comes to sharing it, they need to convert it to PDF. `md2pdf` is a simple tool which does exactly that.
 
 Currently, it supports:
-- [X] Headings (L1 - L6)
-- [X] Paragraph
-- [X] Blockquotes
-- [X] Bold
-- [X] Italic
-- [X] Code
-- [X] Link
-- [X] Images
-- [ ] CodeBlock
-- [ ] Lists (Ordered and Unordered)
-- [ ] Horizontal Rules
-- [ ] Tables
 
+| **Features** | **Support** |
+|---|---|
+| Headings (L1 - L6) | ✔️ |
+| Paragraph | ✔️ |
+| Blockquotes | ✔️ |
+| Bold | ✔️ |
+| Italic | ✔️ |
+| Code | ✔️ |
+| Link | ✔️ |
+| Images | ✔️ |
+| CodeBlock | ⬛ |
+| Lists (Ordered and Unordered) | ⬛ |
+| Horizontal Rules | ⬛ |
+| Tables | ⬛ |
 
 Take a look at the PDF generated from the sample markdown file.
 | [PDF File](./test.pdf) | [Markdown File](./test.md) |
@@ -64,17 +66,16 @@ Take a look at the PDF generated from the sample markdown file.
 $ md2pdf -h
 Usage of md2pdf:
   -file string
-    	Name of the markdown file to read
+     Name of the markdown file to read
   -output string
-    	Name of the PDF file to be exported  (default: <input-file-name>.pdf)
+     Name of the PDF file to be exported  (default: <input-file-name>.pdf)
 ```
 
 Example:
 
 ```
-$ md2pdf -file=MyFile.md -output=MyFile.pdf
+md2pdf -file=MyFile.md -output=MyFile.pdf
 ```
-
 
 > This project follows the standard [markdown guidelines](https://www.markdownguide.org/basic-syntax/).
 
