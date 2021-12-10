@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/arnabsen1729/md2pdf/parser"
+	"github.com/arnabsen1729/md2pdf/writer"
 )
 
 // readFile to read the contents of the file and return string.
@@ -23,8 +24,8 @@ func readFile(fileName string) string {
 }
 
 func main() {
-	fileName := flag.String("file", "", "Name of the markdown file to read")
-	outputFileName := flag.String("output", "", "Name of the PDF file to be exported  (default: <input-file-name>.pdf)")
+	fileName := flag.String("file", "", "Name of the markdown file to be converted")
+	outputFileName := flag.String("output", "", "Name of the generated PDF file (default: <input-file-name>.pdf)")
 	flag.Parse()
 
 	if *fileName == "" {
@@ -38,7 +39,6 @@ func main() {
 
 	md := readFile(*fileName)
 	par := parser.NewParser(md)
-	pdf := &pdfWriter{pdf: nil}
-	pdf.init(par.Lines)
-	pdf.export(*outputFileName)
+	pdf := writer.NewWriter(par.Lines)
+	pdf.Export(*outputFileName)
 }

@@ -62,7 +62,7 @@ Take a look at the PDF generated from the sample markdown file.
 <!-- USAGE -->
 ## Usage
 
-```
+```bash
 $ md2pdf -h
 Usage of md2pdf:
   -file string
@@ -73,9 +73,34 @@ Usage of md2pdf:
 
 Example:
 
-```
+```bash
 md2pdf -file=MyFile.md -output=MyFile.pdf
 ```
+
+## Working
+
+We can look at the markdown file as a bunch of lines, and each lines are further
+a collection of **tokens**. Tokens refer to the smallest/atomic unit of
+markdown. Each token has it's own **style**, **content** and **alternate
+content** (altContent is optional).
+
+For example, a token can be a heading, a paragraph, a bold text, an image, a
+code block, a list, etc. The token for heading will have the text in the
+`content`, the respective style like being bold, a larger font etc in the
+`style`.
+
+Alternate content of the token is used in cases of images and links. For
+example, the alternate content of an image will be the image URL.
+
+![diag1](./.github/assets/diag1.png)
+
+Parser first reads the markdown file splits it by lines and then further splits
+the lines by tokens.
+
+![diag2](./.github/assets/diag2.png)
+
+This list of list of tokens are then passed to the Writer to generate the final
+PDF.
 
 > This project follows the standard [markdown guidelines](https://www.markdownguide.org/basic-syntax/).
 

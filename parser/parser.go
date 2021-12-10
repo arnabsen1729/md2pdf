@@ -31,8 +31,7 @@ const (
 	Blockquote
 )
 
-// Regex to match the respective tags
-// Regex source: https://github.com/Python-Markdown/markdown/blob/master/markdown/blockprocessors.py#L448
+// Regex to match the respective tags.
 const (
 	HeadingRE    = `(?:^|\n)(?P<level>#{1,6})(?P<header>(?:\\.|[^\\])*?)#*(?:\n|$)`
 	BoldRE       = `(\*{2}.+?\*{2})`
@@ -96,7 +95,7 @@ func newTokenDerived(content string, style int) *Token {
 	}
 }
 
-func inlineParseAndAppend(style int, content string) []*Token {
+func inlineParseTokens(style int, content string) []*Token {
 	line := make([]*Token, 0)
 
 	groups := re.FindAllStringIndex(content, -1)
@@ -143,7 +142,7 @@ func NewParser(input string) *MdParser {
 
 			currTokens = append(currTokens, &Token{Style: Blockquote, Content: content, AltContent: ""})
 		default: // paragraph
-			currTokens = append(currTokens, inlineParseAndAppend(Para, line)...)
+			currTokens = append(currTokens, inlineParseTokens(Para, line)...)
 		}
 
 		p.Lines = append(p.Lines, currTokens)
