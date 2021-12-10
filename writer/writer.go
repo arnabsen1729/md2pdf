@@ -1,4 +1,6 @@
-package main
+// Package writer creates a pdf file and takes care of the formatting of the
+// tokens.
+package writer
 
 import (
 	"log"
@@ -139,11 +141,13 @@ func formatWriter(p *gofpdf.Fpdf, t *parser.Token) {
 	}
 }
 
-type pdfWriter struct {
+type PdfWriter struct {
 	pdf *gofpdf.Fpdf
 }
 
-func (p *pdfWriter) init(lines [][]*parser.Token) {
+// NewWriter takes the parsed list of list of tokens returns a PdfWriter.
+func NewWriter(lines [][]*parser.Token) PdfWriter {
+	p := PdfWriter{pdf: nil}
 	p.pdf = gofpdf.New("P", "mm", "A4", "")
 	p.pdf.AddPage()
 
@@ -154,9 +158,12 @@ func (p *pdfWriter) init(lines [][]*parser.Token) {
 
 		p.pdf.Ln(lineHeight)
 	}
+
+	return p
 }
 
-func (p *pdfWriter) export(filename string) {
+// Export saves the PdfWriter object on disk as a pdf document.
+func (p *PdfWriter) Export(filename string) {
 	err := p.pdf.OutputFileAndClose(filename + ".pdf")
 	if err != nil {
 		log.Fatalln("[ Error occurred during exporting pdf ]", err)
