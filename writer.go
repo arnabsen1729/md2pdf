@@ -5,6 +5,7 @@ import (
 	"math"
 	"strings"
 
+	"github.com/arnabsen1729/md2pdf/parser"
 	"github.com/jung-kurt/gofpdf"
 	"github.com/jung-kurt/gofpdf/contrib/httpimg"
 )
@@ -48,12 +49,12 @@ func displayImage(imageURL string, pdf *gofpdf.Fpdf) {
 }
 
 // writeWithStyle will write the content with the style passed by the params.
-func writeWithStyle(style string, size float64, h float64, bg *color, font string, fg *color, pdf *gofpdf.Fpdf, t *token) {
-	if t.style == Image {
-		displayImage(t.altContent, pdf)
+func writeWithStyle(style string, size float64, h float64, bg *color, font string, fg *color, pdf *gofpdf.Fpdf, t *parser.Token) {
+	if t.Style == parser.Image {
+		displayImage(t.AltContent, pdf)
 
 		return
-	} else if t.style == Blockquote {
+	} else if t.Style == parser.Blockquote {
 		// prints the small rect in the beginning of blockquote.
 		pdf.SetFillColor(200, 200, 200)
 		pdf.CellFormat(2, h, " ", "", 0, "", true, 0, "")
@@ -63,7 +64,7 @@ func writeWithStyle(style string, size float64, h float64, bg *color, font strin
 	pdf.SetTextColor(fg.r, fg.g, fg.b)
 	pdf.SetFillColor(bg.r, bg.g, bg.b)
 
-	words := strings.Split(t.content, " ")
+	words := strings.Split(t.Content, " ")
 
 	for _, word := range words {
 		if len(word) == 0 {
@@ -76,16 +77,16 @@ func writeWithStyle(style string, size float64, h float64, bg *color, font strin
 		if finalXPos > pageWidth {
 			pdf.Ln(h)
 
-			if t.style == Blockquote {
+			if t.Style == parser.Blockquote {
 				pdf.SetFillColor(200, 200, 200)
 				pdf.CellFormat(2, h, " ", "", 0, "", true, 0, "")
 				pdf.SetFillColor(bg.r, bg.g, bg.b)
 			}
 		}
 
-		if t.style == Link {
+		if t.Style == parser.Link {
 			// Currently separate links are added to each word. Ideally the entire phrase should be link.
-			pdf.LinkString(pdf.GetX(), pdf.GetY(), w, h, t.altContent)
+			pdf.LinkString(pdf.GetX(), pdf.GetY(), w, h, t.AltContent)
 		}
 
 		switch style {
@@ -100,7 +101,7 @@ func writeWithStyle(style string, size float64, h float64, bg *color, font strin
 }
 
 // func that returns the format of the tokens.
-func formatWriter(p *gofpdf.Fpdf, t *token) {
+func formatWriter(p *gofpdf.Fpdf, t *parser.Token) {
 	var (
 		// standard colors
 		black     = rgb(0, 0, 0)
@@ -110,28 +111,28 @@ func formatWriter(p *gofpdf.Fpdf, t *token) {
 		lightGrey = rgb(240, 240, 240)
 	)
 
-	switch t.style {
-	case Bold:
+	switch t.Style {
+	case parser.Bold:
 		writeWithStyle("B", normalTextSize, normalTextHeight, white, "Helvetica", black, p, t)
-	case Italic:
+	case parser.Italic:
 		writeWithStyle("I", normalTextSize, normalTextHeight, white, "Helvetica", black, p, t)
-	case Code:
+	case parser.Code:
 		writeWithStyle("", normalTextSize, normalTextHeight, grey, "Courier", black, p, t)
-	case Heading1:
+	case parser.Heading1:
 		writeWithStyle("B", heading1Size, headingGrp1Height, white, "Helvetica", black, p, t)
-	case Heading2:
+	case parser.Heading2:
 		writeWithStyle("B", heading2Size, headingGrp1Height, white, "Helvetica", black, p, t)
-	case Heading3:
+	case parser.Heading3:
 		writeWithStyle("B", heading3Size, headingGrp2Height, white, "Helvetica", black, p, t)
-	case Heading4:
+	case parser.Heading4:
 		writeWithStyle("B", heading4Size, headingGrp2Height, white, "Helvetica", black, p, t)
-	case Heading5:
+	case parser.Heading5:
 		writeWithStyle("B", heading5Size, headingGrp3Height, white, "Helvetica", black, p, t)
-	case Heading6:
+	case parser.Heading6:
 		writeWithStyle("B", heading6Size, headingGrp3Height, white, "Helvetica", black, p, t)
-	case Link:
+	case parser.Link:
 		writeWithStyle("", normalTextSize, normalTextHeight, white, "Helvetica", blue, p, t)
-	case Blockquote:
+	case parser.Blockquote:
 		writeWithStyle("", normalTextSize, normalTextHeight, lightGrey, "Helvetica", black, p, t)
 	default:
 		writeWithStyle("", normalTextSize, normalTextHeight, white, "Helvetica", black, p, t)
@@ -142,7 +143,7 @@ type pdfWriter struct {
 	pdf *gofpdf.Fpdf
 }
 
-func (p *pdfWriter) init(lines [][]*token) {
+func (p *pdfWriter) init(lines [][]*parser.Token) {
 	p.pdf = gofpdf.New("P", "mm", "A4", "")
 	p.pdf.AddPage()
 

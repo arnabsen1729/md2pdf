@@ -22,3 +22,6 @@ test:
 
 lint:
 	golangci-lint run --enable-all --color always --issues-exit-code=0 --disable cyclop,lll,gomnd
+
+cover:
+	go test ./... -cover

@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/arnabsen1729/md2pdf/parser"
 )
 
 // readFile to read the contents of the file and return string.
@@ -35,8 +37,8 @@ func main() {
 	}
 
 	md := readFile(*fileName)
-	par := newParser(md)
+	par := parser.NewParser(md)
 	pdf := &pdfWriter{pdf: nil}
-	pdf.init(par.lines)
+	pdf.init(par.Lines)
 	pdf.export(*outputFileName)
 }
