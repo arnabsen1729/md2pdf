@@ -49,11 +49,11 @@ func displayImage(imageURL string, pdf *gofpdf.Fpdf) {
 
 // writeWithStyle will write the content with the style passed by the params.
 func writeWithStyle(style string, size float64, h float64, bg *color, font string, fg *color, pdf *gofpdf.Fpdf, t *token) {
-	if t.style == image {
+	if t.style == Image {
 		displayImage(t.altContent, pdf)
 
 		return
-	} else if t.style == blockquote {
+	} else if t.style == Blockquote {
 		// prints the small rect in the beginning of blockquote.
 		pdf.SetFillColor(200, 200, 200)
 		pdf.CellFormat(2, h, " ", "", 0, "", true, 0, "")
@@ -76,14 +76,14 @@ func writeWithStyle(style string, size float64, h float64, bg *color, font strin
 		if finalXPos > pageWidth {
 			pdf.Ln(h)
 
-			if t.style == blockquote {
+			if t.style == Blockquote {
 				pdf.SetFillColor(200, 200, 200)
 				pdf.CellFormat(2, h, " ", "", 0, "", true, 0, "")
 				pdf.SetFillColor(bg.r, bg.g, bg.b)
 			}
 		}
 
-		if t.style == link {
+		if t.style == Link {
 			// Currently separate links are added to each word. Ideally the entire phrase should be link.
 			pdf.LinkString(pdf.GetX(), pdf.GetY(), w, h, t.altContent)
 		}
@@ -111,27 +111,27 @@ func formatWriter(p *gofpdf.Fpdf, t *token) {
 	)
 
 	switch t.style {
-	case bold:
+	case Bold:
 		writeWithStyle("B", normalTextSize, normalTextHeight, white, "Helvetica", black, p, t)
-	case italic:
+	case Italic:
 		writeWithStyle("I", normalTextSize, normalTextHeight, white, "Helvetica", black, p, t)
-	case code:
+	case Code:
 		writeWithStyle("", normalTextSize, normalTextHeight, grey, "Courier", black, p, t)
-	case heading1:
+	case Heading1:
 		writeWithStyle("B", heading1Size, headingGrp1Height, white, "Helvetica", black, p, t)
-	case heading2:
+	case Heading2:
 		writeWithStyle("B", heading2Size, headingGrp1Height, white, "Helvetica", black, p, t)
-	case heading3:
+	case Heading3:
 		writeWithStyle("B", heading3Size, headingGrp2Height, white, "Helvetica", black, p, t)
-	case heading4:
+	case Heading4:
 		writeWithStyle("B", heading4Size, headingGrp2Height, white, "Helvetica", black, p, t)
-	case heading5:
+	case Heading5:
 		writeWithStyle("B", heading5Size, headingGrp3Height, white, "Helvetica", black, p, t)
-	case heading6:
+	case Heading6:
 		writeWithStyle("B", heading6Size, headingGrp3Height, white, "Helvetica", black, p, t)
-	case link:
+	case Link:
 		writeWithStyle("", normalTextSize, normalTextHeight, white, "Helvetica", blue, p, t)
-	case blockquote:
+	case Blockquote:
 		writeWithStyle("", normalTextSize, normalTextHeight, lightGrey, "Helvetica", black, p, t)
 	default:
 		writeWithStyle("", normalTextSize, normalTextHeight, white, "Helvetica", black, p, t)

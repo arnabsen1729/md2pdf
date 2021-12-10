@@ -12,19 +12,19 @@ import (
 */
 
 const (
-	para int = iota
-	heading1
-	heading2
-	heading3
-	heading4
-	heading5
-	heading6
-	bold
-	italic
-	code
-	link
-	image
-	blockquote
+	Para int = iota
+	Heading1
+	Heading2
+	Heading3
+	Heading4
+	Heading5
+	Heading6
+	Bold
+	Italic
+	Code
+	Link
+	Image
+	Blockquote
 )
 
 // Regex source: https://github.com/Python-Markdown/markdown/blob/master/markdown/blockprocessors.py#L448
@@ -70,23 +70,23 @@ func newTokenDerived(content string, style int) *token {
 
 	switch {
 	case strings.HasPrefix(content, "**") && strings.HasSuffix(content, "**"): // bold
-		return &token{style: bold, content: content[2 : len(content)-2], altContent: ""}
+		return &token{style: Bold, content: content[2 : len(content)-2], altContent: ""}
 	case strings.HasPrefix(content, "*") && strings.HasSuffix(content, "*"): // italic
-		return &token{style: italic, content: content[1 : len(content)-1], altContent: ""}
+		return &token{style: Italic, content: content[1 : len(content)-1], altContent: ""}
 	case strings.HasPrefix(content, "`") && strings.HasSuffix(content, "`"): // code (inline)
-		return &token{style: code, content: content[1 : len(content)-1], altContent: ""}
+		return &token{style: Code, content: content[1 : len(content)-1], altContent: ""}
 	case strings.HasPrefix(content, "[") && strings.HasSuffix(content, ")"): // link
 		closingBracketPos := strings.Index(content, "]")
 		linkContent := content[1:closingBracketPos]
 		linkURL := content[closingBracketPos+2 : len(content)-1]
 
-		return &token{style: link, content: linkContent, altContent: linkURL}
+		return &token{style: Link, content: linkContent, altContent: linkURL}
 	case strings.HasPrefix(content, "![") && strings.HasSuffix(content, ")"): // image
 		closingBracketPos := strings.Index(content, "]")
 		imageContent := content[2:closingBracketPos]
 		imageURL := content[closingBracketPos+2 : len(content)-1]
 
-		return &token{style: image, content: imageContent, altContent: imageURL}
+		return &token{style: Image, content: imageContent, altContent: imageURL}
 	default:
 		return &token{style: style, content: content, altContent: ""}
 	}
@@ -137,9 +137,9 @@ func newParser(input string) *mdParser {
 		case blockquoteCompiledRE.MatchString(line): // blockquote
 			content := strings.TrimSpace(blockquoteCompiledRE.FindStringSubmatch(line)[2])
 
-			currTokens = append(currTokens, &token{style: blockquote, content: content, altContent: ""})
+			currTokens = append(currTokens, &token{style: Blockquote, content: content, altContent: ""})
 		default: // paragraph
-			currTokens = append(currTokens, inlineParseAndAppend(para, line)...)
+			currTokens = append(currTokens, inlineParseAndAppend(Para, line)...)
 		}
 
 		p.lines = append(p.lines, currTokens)
