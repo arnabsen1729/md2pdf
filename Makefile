@@ -8,8 +8,8 @@ run:
 
 dev:
 	go build -o ${BINARY_NAME} .
-	./${BINARY_NAME} -file test.md
-	xdg-open test.pdf
+	./${BINARY_NAME} -file sample.md
+	xdg-open sample.pdf
 
 build_and_run: build run
 
