@@ -1,4 +1,7 @@
-package main
+// Package parser will parse the markdown files into tokens. Each token has it's
+// own specific style. We pass the text to the NewParser() function which
+// returns an MdParser object pointer.
+package parser
 
 import (
 	"regexp"
@@ -11,30 +14,30 @@ import (
 	Link: https://www.sohamkamani.com/golang/enums/
 */
 
+// Markdown styles.
 const (
-	para int = iota
-	heading1
-	heading2
-	heading3
-	heading4
-	heading5
-	heading6
-	bold
-	italic
-	code
-	link
-	image
-	blockquote
+	Para = iota
+	Heading1
+	Heading2
+	Heading3
+	Heading4
+	Heading5
+	Heading6
+	Bold
+	Italic
+	Code
+	Link
+	Image
+	Blockquote
 )
 
+// Regex to match the respective tags
 // Regex source: https://github.com/Python-Markdown/markdown/blob/master/markdown/blockprocessors.py#L448
 const (
-	HeadingRE = `(?:^|\n)(?P<level>#{1,6})(?P<header>(?:\\.|[^\\])*?)#*(?:\n|$)`
-	BoldRE    = `(\*{2}.+?\*{2})`
-	ItalicRE  = `(\*{1}.+?\*{1})`
-	CodeRE    = `(\` + "`" + `{1}.+?\` + "`" + `{1})`
-	// Golang doesn't seem to support ` (backtick) in raw strings.
-	// Ref: https://github.com/golang/go/issues/18221#issuecomment-265314494
+	HeadingRE    = `(?:^|\n)(?P<level>#{1,6})(?P<header>(?:\\.|[^\\])*?)#*(?:\n|$)`
+	BoldRE       = `(\*{2}.+?\*{2})`
+	ItalicRE     = `(\*{1}.+?\*{1})`
+	CodeRE       = `(\` + "`" + `{1}.+?\` + "`" + `{1})` // Golang doesn't support ` (backtick) in raw strings.
 	LinkRE       = `\[.+?\]\(.+?\)`
 	ImageRE      = `\!\[.+?\]\(.+?\)`
 	BlockquoteRE = `(^|\n)[ ]{0,3}>[ ]?(.*)`
@@ -49,51 +52,52 @@ var (
 	blockquoteCompiledRE = regexp.MustCompile(BlockquoteRE)
 )
 
-/*
-	For links, altContent will store the URL and content will store the text to display.
-	Similarly, for images content will store the URL of the image.
-*/
-
-type token struct {
-	style      int
-	content    string
-	altContent string // only in links and images, for rest it will ""(empty string).
+// Token is the basic unit of a markdown file. For links, AltContent will store
+// the URL and content will store the text to display. Similarly, for images
+// content will store the URL of the image.
+type Token struct {
+	Style      int
+	Content    string
+	AltContent string // only in links and images, for rest it will ""(empty string).
 }
 
-// mdParser will parse the text passed into markdown tokens.
-type mdParser struct {
-	lines [][]*token
+// MdParser will parse the text passed into markdown tokens. Each line in a
+// markdown file can be represented as a list of tokens (inline styling). So the
+// entire markdown file is a list of such lines and hence a list of list of
+// token.
+type MdParser struct {
+	Lines [][]*Token
 }
 
-func newTokenDerived(content string, style int) *token {
+func newTokenDerived(content string, style int) *Token {
 	content = strings.TrimSpace(content)
 
 	switch {
 	case strings.HasPrefix(content, "**") && strings.HasSuffix(content, "**"): // bold
-		return &token{style: bold, content: content[2 : len(content)-2], altContent: ""}
+		return &Token{Style: Bold, Content: content[2 : len(content)-2], AltContent: ""}
 	case strings.HasPrefix(content, "*") && strings.HasSuffix(content, "*"): // italic
-		return &token{style: italic, content: content[1 : len(content)-1], altContent: ""}
+		return &Token{Style: Italic, Content: content[1 : len(content)-1], AltContent: ""}
 	case strings.HasPrefix(content, "`") && strings.HasSuffix(content, "`"): // code (inline)
-		return &token{style: code, content: content[1 : len(content)-1], altContent: ""}
+		return &Token{Style: Code, Content: content[1 : len(content)-1], AltContent: ""}
 	case strings.HasPrefix(content, "[") && strings.HasSuffix(content, ")"): // link
 		closingBracketPos := strings.Index(content, "]")
 		linkContent := content[1:closingBracketPos]
 		linkURL := content[closingBracketPos+2 : len(content)-1]
 
-		return &token{style: link, content: linkContent, altContent: linkURL}
+		return &Token{Style: Link, Content: linkContent, AltContent: linkURL}
 	case strings.HasPrefix(content, "![") && strings.HasSuffix(content, ")"): // image
 		closingBracketPos := strings.Index(content, "]")
 		imageContent := content[2:closingBracketPos]
 		imageURL := content[closingBracketPos+2 : len(content)-1]
 
-		return &token{style: image, content: imageContent, altContent: imageURL}
+		return &Token{Style: Image, Content: imageContent, AltContent: imageURL}
 	default:
-		return &token{style: style, content: content, altContent: ""}
+		return &Token{Style: style, Content: content, AltContent: ""}
 	}
 }
 
-func inlineParseAndAppend(style int, content string) []*token {
-	line := make([]*token, 0)
+func inlineParseAndAppend(style int, content string) []*Token {
+	line := make([]*Token, 0)
 
 	groups := re.FindAllStringIndex(content, -1)
 
@@ -115,15 +119,15 @@ func inlineParseAndAppend(style int, content string) []*token {
 	return line
 }
 
-// newParser returns a pointer to an object of mdParser.
+// NewParser returns a pointer to an object of MdParser.
 // It parses the passed string into markdown tokens.
-func newParser(input string) *mdParser {
-	p := &mdParser{lines: nil}
+func NewParser(input string) *MdParser {
+	p := &MdParser{Lines: nil}
 
 	lines := strings.Split(input, "\n")
 	for _, line := range lines {
 		// headings
-		var currTokens []*token
+		var currTokens []*Token
 
 		switch {
 		case headingCompiledRE.MatchString(line): // heading
@@ -133,16 +137,16 @@ func newParser(input string) *mdParser {
 			* heading 1-6 has value 1-6 according to the enum declaration above.
 			* So, we can directly use the length of `#` to determine the heading level
 			 */
-			currTokens = append(currTokens, &token{style: level, content: content, altContent: ""})
+			currTokens = append(currTokens, &Token{Style: level, Content: content, AltContent: ""})
 		case blockquoteCompiledRE.MatchString(line): // blockquote
 			content := strings.TrimSpace(blockquoteCompiledRE.FindStringSubmatch(line)[2])
 
-			currTokens = append(currTokens, &token{style: blockquote, content: content, altContent: ""})
+			currTokens = append(currTokens, &Token{Style: Blockquote, Content: content, AltContent: ""})
 		default: // paragraph
-			currTokens = append(currTokens, inlineParseAndAppend(para, line)...)
+			currTokens = append(currTokens, inlineParseAndAppend(Para, line)...)
 		}
 
-		p.lines = append(p.lines, currTokens)
+		p.Lines = append(p.Lines, currTokens)
 	}
 
 	return p
