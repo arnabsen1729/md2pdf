@@ -6,6 +6,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"io"
 	"strings"
 
 	"github.com/arnabsen1729/md2pdf/parser"
@@ -166,6 +167,15 @@ func NewWriter(lines [][]*parser.Token) PdfWriter {
 // Export saves the PdfWriter object on disk as a pdf document.
 func (p *PdfWriter) Export(filename string) {
 	err := p.pdf.OutputFileAndClose(filename + ".pdf")
+	if err != nil {
+		log.Fatalln("[ Error occurred during exporting pdf ]", err)
+		os.Exit(1)
+	}
+}
+
+// ExportWriter saves the PdfWriter object out to the provided io.Writer.
+func (p *PdfWriter) ExportWriter(w io.Writer) {
+	err := p.pdf.Output(w)
 	if err != nil {
 		log.Fatalln("[ Error occurred during exporting pdf ]", err)
 		os.Exit(1)
