@@ -3,6 +3,7 @@
 package writer
 
 import (
+	"io"
 	"log"
 	"math"
 	"os"
@@ -167,6 +168,14 @@ func NewWriter(lines [][]*parser.Token) PdfWriter {
 func (p *PdfWriter) Export(filename string) {
 	err := p.pdf.OutputFileAndClose(filename + ".pdf")
 	if err != nil {
+		log.Fatalln("[ Error occurred during exporting pdf ]", err)
+		os.Exit(1)
+	}
+}
+
+// ExportWriter saves the PdfWriter object out to the provided io.Writer.
+func (p *PdfWriter) ExportWriter(w io.Writer) {
+	if err := p.pdf.Output(w); err != nil {
 		log.Fatalln("[ Error occurred during exporting pdf ]", err)
 		os.Exit(1)
 	}
