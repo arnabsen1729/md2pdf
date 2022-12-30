@@ -3,7 +3,6 @@
 [![Issues][issues-shield]][issues-url]
 [![Builds][builds-shield]][builds-url]
 [![Tests][tests-shield]][tests-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
 <!-- [![MIT License][license-shield]][license-url] -->
 <!-- [![Forks][forks-shield]][forks-url] -->
 
@@ -123,7 +122,7 @@ PDF.
 [license-url]: https://github.com/arnabsen1729/md2pdf/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/arnabsen1729
-[builds-shield]: https://img.shields.io/github/workflow/status/arnabsen1729/md2pdf/golangci-lint?style=for-the-badge
+[builds-shield]: https://img.shields.io/github/actions/workflow/status/arnabsen1729/md2pdf/golangci-lint.yml?style=for-the-badge
 [builds-url]: https://github.com/arnabsen1729/md2pdf/actions/workflows/golangci-lint.yml
-[tests-shield]: https://img.shields.io/github/workflow/status/arnabsen1729/md2pdf/Test?label=Tests&style=for-the-badge
+[tests-shield]: https://img.shields.io/github/actions/workflow/status/arnabsen1729/md2pdf/test.yml?label=Tests&style=for-the-badge
 [tests-url]: https://github.com/arnabsen1729/md2pdf/actions/workflows/test.yml
